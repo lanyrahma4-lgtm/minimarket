@@ -1,6 +1,6 @@
-@php 
+<?php 
     use Illuminate\Support\Facades\Auth; 
-@endphp 
+?> 
 
 <!DOCTYPE html> 
 <html lang="en"> 
@@ -68,15 +68,15 @@
 
     <div class="welcome">
 
-        @if (auth()->user()->isAdmin()) 
+        <?php if(auth()->user()->isAdmin()): ?> 
             <h1>Welcome, Admin!</h1>
             <p>Selamat datang di halaman admin.</p>
-        @else 
+        <?php else: ?> 
             <h1>Welcome, User!</h1>
             <p>Selamat datang di halaman kami.</p>
-        @endif
+        <?php endif; ?>
 
     </div>
 
 </body> 
-</html>
+</html><?php /**PATH C:\laragon\www\minimarket\resources\views/welcome.blade.php ENDPATH**/ ?>

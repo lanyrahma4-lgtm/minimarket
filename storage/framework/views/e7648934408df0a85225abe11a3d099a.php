@@ -80,4 +80,4 @@
         <button type="submit">Login</button>
     </form>
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\minimarket\resources\views/auth/login.blade.php ENDPATH**/ ?>
