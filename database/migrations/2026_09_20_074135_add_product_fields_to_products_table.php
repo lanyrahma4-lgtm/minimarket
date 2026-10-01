@@ -9,17 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('name')->after('category_id');
-            $table->string('sku')->unique()->after('name');
-            $table->decimal('price', 10, 2)->after('sku');
-            $table->integer('stock')->after('price');
+            $table->foreignId('category_id')
+                ->constrained('categories')
+                ->onDelete('cascade');
+
+            $table->string('name');
+            $table->string('sku')->unique();
+            $table->decimal('price', 10, 2);
+            $table->integer('stock');
         });
     }
 
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
+            $table->dropForeign(['category_id']);
+
             $table->dropColumn([
+                'category_id',
                 'name',
                 'sku',
                 'price',
