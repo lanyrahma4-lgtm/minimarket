@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PostController;
@@ -7,50 +8,88 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\QueryBuilderController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use App\Http\Controllers\postControler;
 
-Route::get('/query-builder/insert', [QueryBuilderController::class, 'insertData']);
-Route::get('/query-builder/insert-id', [QueryBuilderController::class, 'insertGetId']);
-Route::get('/query-builder/get', [QueryBuilderController::class, 'getData']);
-Route::get('/query-builder/first', [QueryBuilderController::class, 'firstData']);
-Route::get('/query-builder/select', [QueryBuilderController::class, 'selectData']);
-Route::get('/query-builder/multiple-where', [QueryBuilderController::class, 'multipleWhere']);
-Route::get('/query-builder/where-operator', [QueryBuilderController::class, 'whereOperator']);
-Route::get('/query-builder/update', [QueryBuilderController::class, 'updateData']);
-Route::get('/query-builder/increment', [QueryBuilderController::class, 'incrementDecrement']);
-Route::get('/query-builder/delete', [QueryBuilderController::class, 'deleteData']);
-Route::get('/query-builder/truncate', [QueryBuilderController::class, 'truncateData']);
-Route::get('/query-builder/pluck', [QueryBuilderController::class, 'pluckData']);
-Route::get('/query-builder/aggregate', [QueryBuilderController::class, 'aggregateData']);
-Route::get('/query-builder/orders', [QueryBuilderController::class, 'getOrders']);
-Route::get('/query-builder/insert-order', [QueryBuilderController::class, 'insertOrder']);
-Route::get('/query-builder/join', [QueryBuilderController::class, 'joinData']);
-Route::get('/query-builder/left-join', [QueryBuilderController::class, 'leftJoinData']);
-Route::get('/query-builder/order-by', [QueryBuilderController::class, 'orderByData']);
-Route::get('/query-builder/limit', [QueryBuilderController::class, 'limitData']);
-Route::get('/query-builder/offset', [QueryBuilderController::class, 'offsetData']);
-Route::get('/query-builder/select-sub', [QueryBuilderController::class, 'selectSubData']);
-Route::get('/query-builder/select-raw', [QueryBuilderController::class, 'selectRawData']);
-Route::get('/query-builder/where-raw', [QueryBuilderController::class, 'whereRawData']);
 
-Route::get('/lany/create', [QueryBuilderController::class, 'createData']);
-Route::get('/lany/save', [QueryBuilderController::class, 'saveData']);
-Route::get('/lany/all', [QueryBuilderController::class, 'getAllUsers']);
-Route::get('/lany/find', [QueryBuilderController::class, 'findUser']);
-Route::get('/lany/where', [QueryBuilderController::class, 'whereData']);
-Route::get('/lany/first-or-fail', [QueryBuilderController::class, 'firstOrFailData']);
-Route::get('/lany/update-save', [QueryBuilderController::class, 'updateSaveData']);
-Route::get('/lany/destroy', [QueryBuilderController::class, 'destroyData']);
 
-Route::get('/eloquent/where', [QueryBuilderController::class, 'eloquentWhere']);
-Route::get('/eloquent/or-where', [QueryBuilderController::class, 'eloquentOrWhere']);
-Route::get('/eloquent/where-between', [QueryBuilderController::class, 'eloquentWhereBetween']);
-Route::get('/eloquent/where-in', [QueryBuilderController::class, 'eloquentWhereIn']);
-Route::get('/eloquent/where-null', [QueryBuilderController::class, 'eloquentWhereNull']);
-Route::get('/eloquent/where-not-null', [QueryBuilderController::class, 'eloquentWhereNotNull']);
-Route::get('/eloquent/when', [QueryBuilderController::class, 'eloquentWhen']);
+Route::get('/post/{post}/edit', [postControler::class, 'edit'])
+    ->middleware('can:update,post');
+    
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
 
-Route::get('/form', [FormController::class, 'showForm']);
-Route::post('/submit-form', [FormController::class, 'submitForm']);
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect('/dashboard');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/resend', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Route::get('/query-builder/insert', [QueryBuilderController::class, 'insertData']);
+// Route::get('/query-builder/insert-id', [QueryBuilderController::class, 'insertGetId']);
+// Route::get('/query-builder/get', [QueryBuilderController::class, 'getData']);
+// Route::get('/query-builder/first', [QueryBuilderController::class, 'firstData']);
+// Route::get('/query-builder/select', [QueryBuilderController::class, 'selectData']);
+// Route::get('/query-builder/multiple-where', [QueryBuilderController::class, 'multipleWhere']);
+// Route::get('/query-builder/where-operator', [QueryBuilderController::class, 'whereOperator']);
+// Route::get('/query-builder/update', [QueryBuilderController::class, 'updateData']);
+// Route::get('/query-builder/increment', [QueryBuilderController::class, 'incrementDecrement']);
+// Route::get('/query-builder/delete', [QueryBuilderController::class, 'deleteData']);
+// Route::get('/query-builder/truncate', [QueryBuilderController::class, 'truncateData']);
+// Route::get('/query-builder/pluck', [QueryBuilderController::class, 'pluckData']);
+// Route::get('/query-builder/aggregate', [QueryBuilderController::class, 'aggregateData']);
+// Route::get('/query-builder/orders', [QueryBuilderController::class, 'getOrders']);
+// Route::get('/query-builder/insert-order', [QueryBuilderController::class, 'insertOrder']);
+// Route::get('/query-builder/join', [QueryBuilderController::class, 'joinData']);
+// Route::get('/query-builder/left-join', [QueryBuilderController::class, 'leftJoinData']);
+// Route::get('/query-builder/order-by', [QueryBuilderController::class, 'orderByData']);
+// Route::get('/query-builder/limit', [QueryBuilderController::class, 'limitData']);
+// Route::get('/query-builder/offset', [QueryBuilderController::class, 'offsetData']);
+// Route::get('/query-builder/select-sub', [QueryBuilderController::class, 'selectSubData']);
+// Route::get('/query-builder/select-raw', [QueryBuilderController::class, 'selectRawData']);
+// Route::get('/query-builder/where-raw', [QueryBuilderController::class, 'whereRawData']);
+
+// Route::get('/lany/create', [QueryBuilderController::class, 'createData']);
+// Route::get('/lany/save', [QueryBuilderController::class, 'saveData']);
+// Route::get('/lany/all', [QueryBuilderController::class, 'getAllUsers']);
+// Route::get('/lany/find', [QueryBuilderController::class, 'findUser']);
+// Route::get('/lany/where', [QueryBuilderController::class, 'whereData']);
+// Route::get('/lany/first-or-fail', [QueryBuilderController::class, 'firstOrFailData']);
+// Route::get('/lany/update-save', [QueryBuilderController::class, 'updateSaveData']);
+// Route::get('/lany/destroy', [QueryBuilderController::class, 'destroyData']);
+
+// Route::get('/eloquent/where', [QueryBuilderController::class, 'eloquentWhere']);
+// Route::get('/eloquent/or-where', [QueryBuilderController::class, 'eloquentOrWhere']);
+// Route::get('/eloquent/where-between', [QueryBuilderController::class, 'eloquentWhereBetween']);
+// Route::get('/eloquent/where-in', [QueryBuilderController::class, 'eloquentWhereIn']);
+// Route::get('/eloquent/where-null', [QueryBuilderController::class, 'eloquentWhereNull']);
+// Route::get('/eloquent/where-not-null', [QueryBuilderController::class, 'eloquentWhereNotNull']);
+// Route::get('/eloquent/when', [QueryBuilderController::class, 'eloquentWhen']);
+
+// Route::get('/form', [FormController::class, 'showForm']);
+// Route::post('/submit-form', [FormController::class, 'submitForm']);
 
 // Route::get('/laporan', LaporanPenjualanController::class);
 
@@ -134,7 +173,6 @@ Route::post('/submit-form', [FormController::class, 'submitForm']);
 // });
 
 
-
 // Route::get('/', function () {
 //     return view('auth/login');
 //     });
@@ -151,3 +189,6 @@ Route::post('/submit-form', [FormController::class, 'submitForm']);
 //         return view('welcome');
 //     })->name('umum.dashboard');
 // });
+
+
+require __DIR__.'/auth.php';

@@ -68,13 +68,13 @@
 
     <div class="welcome">
 
-        @if (auth()->user()->isAdmin()) 
-            <h1>Welcome, Admin!</h1>
-            <p>Selamat datang di halaman admin.</p>
-        @else 
-            <h1>Welcome, User!</h1>
-            <p>Selamat datang di halaman kami.</p>
-        @endif
+    @if (auth()->check() && auth()->user()->isAdmin())
+        <h1>Welcome, Admin!</h1>
+        <p>Selamat datang di halaman admin.</p>
+    @else
+        <h1>Welcome, User!</h1>
+        <p>Selamat datang di halaman kami.</p>
+    @endif
 
     </div>
 
